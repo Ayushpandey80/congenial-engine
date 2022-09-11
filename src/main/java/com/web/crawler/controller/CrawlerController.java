@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/crawler")
+@RequestMapping("/crawler")
+@RestController
 public class CrawlerController {
 
     private static Logger logger = LoggerFactory.getLogger(CrawlerController.class);
@@ -17,10 +18,9 @@ public class CrawlerController {
     @Autowired
     private CrawlerService crawlerService;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{url}/{keyword}")
-    public void crawlURL(@RequestParam(name = "url") String url, @RequestParam(name = "keyword") String keyword) {
+    @RequestMapping(method = RequestMethod.GET, value = "/crawl")
+    public void crawlURL(@RequestParam(name = "url") final String url) {
         logger.info("URL : "+url);
-        crawlerService.crawl(url,keyword);
-
+        crawlerService.crawl(url, 0);
     }
 }

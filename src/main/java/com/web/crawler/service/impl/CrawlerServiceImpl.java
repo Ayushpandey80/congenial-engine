@@ -7,10 +7,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -19,25 +21,39 @@ public class CrawlerServiceImpl implements CrawlerService {
 
     private static final int MAX_DEPTH = 2;
 
-    private List<String> url;
+    private List<String> urls;
 
     private List<String> visitedUrl;
-    @Override
-    public Map<String, String> crawl(String url, String keyword) {
-        getUrl().add(url);
 
-        for (String link : getUrl()){
-            visitedUrl.add(link);
+    @Override
+    public Map<String, String> crawl(String url, int depth) {
+
+        if (!(getUrls().contains(url)) && depth < MAX_DEPTH) {
+            System.out.println(url);
+            try {
+                getUrls().add(url);
+                Document document = Jsoup.connect(url).get();
+                Elements ele = document.select("a[href]");
+                depth++;
+                for (Element page : ele) {
+                    crawl(page.attr("abs:href"), depth);
+                }
+            } catch (Exception e){
+                System.out.println(e);
+            }
         }
         return null;
     }
 
-    public List<String> getUrl() {
-        return url;
+    public List<String> getUrls() {
+        if (CollectionUtils.isEmpty(urls)){
+            return new ArrayList<>();
+        }
+        return urls;
     }
 
-    public void setUrl(List<String> url) {
-        this.url = url;
+    public void setUrls(List<String> urls) {
+        this.urls = urls;
     }
 
     public List<String> getVisitedUrl() {
